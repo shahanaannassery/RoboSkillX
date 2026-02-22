@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { GoogleLogin } from "@react-oauth/google";
 
 function LearnerLogin() {
   const navigate = useNavigate();
@@ -26,14 +28,15 @@ function LearnerLogin() {
     const data = res.data.data; 
     
 
-    //store tokens
+   
     localStorage.setItem("access_token", data.access);
     localStorage.setItem("refresh_token", data.refresh);
     localStorage.setItem("user_name", data.user.full_name);
+    localStorage.setItem("user_email", data.user.email);
 
-    alert("Login successful");
+    toast.success("Authenticated");
 
-    //redirect logic
+  
     if (data.onboarding_completed === true) {
       navigate("/dashboard");
     } else {
@@ -42,7 +45,7 @@ function LearnerLogin() {
 
   } catch (err) {
     
-    alert("Invalid email or password");
+    toast.error("Invalid email or password");
   }
 };
 
@@ -94,10 +97,45 @@ function LearnerLogin() {
               Sign In
             </button>
 
-            <div style={styles.bottomText}>
-              Don’t have an account?{" "}
-              <span onClick={() => navigate("/")}>Sign up</span>
-            </div>
+           <div style={{ marginTop: 12 }}>
+  <GoogleLogin
+    onSuccess={async (credentialResponse) => {
+      try {
+        const res = await axios.post(
+          "http://127.0.0.1:8000/api/accounts/google-login/",
+          {
+            token: credentialResponse.credential,
+          }
+        );
+
+        const data = res.data.data;
+
+        localStorage.setItem("access_token", data.access);
+        localStorage.setItem("refresh_token", data.refresh);
+        localStorage.setItem("user_name", data.user.full_name);
+        localStorage.setItem("user_email", data.user.email);
+
+        toast.success("Authenticated");
+        navigate("/dashboard");
+
+      } catch (err) {
+        console.log(err.response?.data);
+        toast.error("Google login failed");
+      }
+    }}
+    onError={() => toast.error("Google Login Failed")}
+  />
+</div>
+
+           <div style={styles.bottomText}>
+  Don’t have an account?{" "}
+  <span
+    style={styles.signupLink}
+    onClick={() => navigate("/learner/register")}
+  >
+    Sign up
+  </span>
+</div>
           </form>
         </div>
       </div>
@@ -217,4 +255,32 @@ const styles = {
     color: "#023859",
     fontSize: "12px",
   },
+
+  googleBtn: {
+  width: "100%",
+  background: "#fff",
+  border: "1px solid #ddd",
+  padding: 10,
+  borderRadius: 10,
+  marginTop: 12,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 10,
+  fontWeight: "500",
+  color: "#011C40",
+  boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+},
+
+googleIcon: {
+  width: 18,
+  height: 18,
+},
+signupLink: {
+  color: "#26658C",
+  fontWeight: "bold",
+  cursor: "pointer",
+  textDecoration: "underline",
+},
 };

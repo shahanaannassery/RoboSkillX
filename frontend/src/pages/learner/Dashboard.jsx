@@ -4,20 +4,20 @@ import miniProject from "../../assets/images/mini project.webp";
 function Dashboard() {
   return (
     <DashboardLayout>
-      {/* WELCOME */}
+      
       <div style={styles.card}>
         <h2>Welcome back 👋</h2>
         <p>Build robotics projects with hands-on learning.</p>
       </div>
 
-      {/* STATS */}
+      
       <div style={styles.row}>
         {["67% Progress", "8 Courses", "2450 Points", "12 Badges"].map((t) => (
           <div key={t} style={styles.stat}>{t}</div>
         ))}
       </div>
 
-      {/* PROJECT */}
+      
       <div style={styles.project}>
         <img src={miniProject} alt="project" style={styles.img} />
         <div>

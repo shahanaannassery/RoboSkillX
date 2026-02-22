@@ -1,16 +1,16 @@
-/* remove browser default spacing */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* full height layout */
+
 html, body, #root {
   height: 100%;
 }
 
-/* global font only */
+
 body {
   font-family: sans-serif;
 }

@@ -156,7 +156,7 @@ function RoleSelection() {
         {/* ROLE BADGE */}
         <div style={styles.roleBadge}>{t.role}</div>
 
-        {/* ⭐ STAR RATING */}
+        
         <div style={styles.stars}>
           {"★".repeat(t.rating)}
           {"☆".repeat(5 - t.rating)}

@@ -1,6 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 function LearnerRegister() {
   const navigate = useNavigate();
@@ -17,25 +21,29 @@ function LearnerRegister() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (form.password !== form.confirm_password) {
-      alert("Passwords do not match");
-      return;
-    }
+  if (form.password !== form.confirm_password) {
+    toast.error("Passwords do not match");
+    return;
+  }
 
-    try {
-      await axios.post(
-        "http://127.0.0.1:8000/api/accounts/learner/register/",
-        form
-      );
+  try {
+    await axios.post(
+      "http://127.0.0.1:8000/api/accounts/learner/register/",
+      form
+    );
 
-      alert("Registered successfully");
+    toast.success("Registered successfully 🎉");
+
+    setTimeout(() => {
       navigate("/login");
-    } catch {
-      alert("Registration failed");
-    }
-  };
+    }, 1500);
+
+  } catch (err) {
+    toast.error("Registration failed ❌");
+  }
+};
 
   return (
     <div style={styles.page}>
@@ -117,9 +125,40 @@ function LearnerRegister() {
             </div>
 
             {/* Google */}
-            <button type="button" style={styles.googleBtn}>
+            {/* <button type="button" style={styles.googleBtn}>
               Continue with Google
-            </button>
+            </button> */}
+
+            <div style={{ marginTop: 12 }}>
+  <GoogleLogin
+    onSuccess={async (credentialResponse) => {
+      try {
+        const res = await axios.post(
+          "http://127.0.0.1:8000/api/accounts/google-login/",
+          {
+            token: credentialResponse.credential,
+          }
+        );
+
+        const data = res.data.data;
+
+        localStorage.setItem("access_token", data.access);
+        localStorage.setItem("refresh_token", data.refresh);
+        localStorage.setItem("user_name", data.user.full_name);
+
+        toast.success("Authenticated");
+        navigate("/dashboard");
+
+      } catch (err) {
+        console.log(err.response?.data);
+        toast.error("Google login failed");
+      }
+    }}
+    onError={() => toast.error("Google Login Failed")}
+  />
+</div>
+
+
           </form>
         </div>
       </div>
@@ -221,7 +260,7 @@ const styles = {
     marginBottom: "18px",
   },
 
-  /* CARD — smaller so footer fits */
+  
   card: {
     background: "#FFFFFF",
     width: "300px",

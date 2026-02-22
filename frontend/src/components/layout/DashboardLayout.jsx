@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   BookOpen,
@@ -21,37 +21,38 @@ import {
 
 function DashboardLayout({ children }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
 
   const userName = localStorage.getItem("user_name") || "Learner";
+  const userEmail = localStorage.getItem("user_email") || "";
 
   const menu = [
-    { name: "Dashboard", icon: LayoutDashboard },
-    { name: "Courses", icon: BookOpen },
-    { name: "Virtual Robotics Lab", icon: Cpu },
-    { name: "Projects", icon: Folder },
-    { name: "Mentors", icon: Users },
-    { name: "Points & Badges", icon: Trophy },
-    { name: "Subscription", icon: CreditCard },
-    { name: "Support", icon: LifeBuoy },
-    { name: "AI Assistant", icon: Bot },
-    { name: "Profile", icon: User },
-    { name: "Settings", icon: Settings },
+    { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+    { name: "Courses", icon: BookOpen, path: "/courses" },
+    { name: "Virtual Robotics Lab", icon: Cpu, path: "/simulation" },
+    { name: "Projects", icon: Folder, path: "/projects" },
+    { name: "Mentors", icon: Users, path: "/mentors" },
+    { name: "Points & Badges", icon: Trophy, path: "/badges" },
+    { name: "Subscription", icon: CreditCard, path: "/subscription" },
+    { name: "Support", icon: LifeBuoy, path: "/support" },
+    { name: "AI Assistant", icon: Bot, path: "/assistant" },
+    { name: "Profile", icon: User, path: "/profile" },
+    { name: "Settings", icon: Settings, path: "/settings" },
   ];
 
   return (
     <div style={styles.page}>
-      {/* ===== SIDEBAR ===== */}
+      {/* SIDEBAR */}
       <div
         style={{
           ...styles.sidebar,
           width: collapsed ? 80 : 250,
         }}
       >
-        {/* LOGO + TOGGLE */}
+        {/* LOGO */}
         <div style={styles.logoRow}>
           <div style={styles.logoBox}>🤖</div>
-
           {!collapsed && <span style={styles.logoText}>RoboSkillX</span>}
 
           <div
@@ -66,8 +67,23 @@ function DashboardLayout({ children }) {
         <div style={{ flex: 1 }}>
           {menu.map((item) => {
             const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+
             return (
-              <div key={item.name} style={styles.menuItem}>
+              <div
+                key={item.name}
+                onClick={() => navigate(item.path)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateX(6px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateX(0px)";
+                }}
+                style={{
+                  ...styles.menuItem,
+                  ...(isActive && styles.activeMenuItem),
+                }}
+              >
                 <Icon size={20} />
                 {!collapsed && <span>{item.name}</span>}
               </div>
@@ -78,28 +94,37 @@ function DashboardLayout({ children }) {
         {/* LOGOUT */}
         <div style={styles.logoutBox}>
           <div style={styles.divider} />
-          <div style={styles.logout} onClick={() => navigate("/")}>
+          <div
+            style={styles.logout}
+            onClick={() => {
+              localStorage.clear();
+              navigate("/");
+            }}
+          >
             <LogOut size={18} />
             {!collapsed && <span>Logout</span>}
           </div>
         </div>
       </div>
 
-      {/* ===== MAIN AREA ===== */}
+      {/* MAIN */}
       <div style={styles.main}>
         {/* HEADER */}
         <div style={styles.header}>
-          <h2 style={{ margin: 0, color: "#011C40" }}>Learner Dashboard</h2>
+          <h2 style={{ margin: 0 }}>
+            {menu.find((m) => m.path === location.pathname)?.name ||
+              "Dashboard"}
+          </h2>
 
           <div style={styles.headerRight}>
-            <MessageCircle size={20} style={styles.headerIcon} />
-            <Bell size={20} style={styles.headerIcon} />
+            <MessageCircle size={20} />
+            <Bell size={20} />
 
             <div style={styles.profile}>
               <div style={styles.avatar}>{userName[0]}</div>
               <div>
                 <div style={styles.name}>{userName}</div>
-                <div style={styles.email}>Learner</div>
+                <div style={styles.email}>{userEmail}</div>
               </div>
             </div>
           </div>
@@ -125,7 +150,6 @@ const styles = {
     fontFamily: "sans-serif",
   },
 
-  /* SIDEBAR */
   sidebar: {
     background: "#FFFFFF",
     display: "flex",
@@ -150,7 +174,6 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: 18,
   },
 
   logoText: {
@@ -161,17 +184,24 @@ const styles = {
 
   toggle: {
     cursor: "pointer",
-    color: "#023859",
   },
 
+  /* MENU */
   menuItem: {
     display: "flex",
     alignItems: "center",
     gap: 12,
-    padding: "12px 18px",
+    padding: "12px 16px",
+    margin: "6px 14px",   // 👈 Slim highlight width
+    borderRadius: 10,
     cursor: "pointer",
-    color: "#023859",
     fontSize: 14,
+    transition: "all 0.2s ease",
+  },
+
+  activeMenuItem: {
+    background: "#8FD6DE",
+    fontWeight: "bold",
   },
 
   logoutBox: { padding: 16 },
@@ -185,7 +215,6 @@ const styles = {
     color: "#D9534F",
   },
 
-  /* MAIN */
   main: {
     flex: 1,
     display: "flex",
@@ -206,11 +235,6 @@ const styles = {
     gap: 18,
   },
 
-  headerIcon: {
-    cursor: "pointer",
-    color: "#023859",
-  },
-
   profile: {
     display: "flex",
     alignItems: "center",
@@ -218,8 +242,8 @@ const styles = {
   },
 
   avatar: {
-    width: 38,
-    height: 38,
+    width: 36,
+    height: 36,
     borderRadius: "50%",
     background: "#26658C",
     color: "#fff",
@@ -229,20 +253,17 @@ const styles = {
     fontWeight: "bold",
   },
 
-  name: { fontWeight: "bold", color: "#011C40" },
-  email: { fontSize: 12, color: "#023859" },
+  name: { fontWeight: "bold" },
+  email: { fontSize: 12 },
 
   content: {
     flex: 1,
     padding: 24,
-    overflowY: "auto",
   },
 
   footer: {
     background: "#8FD6DE",
     textAlign: "center",
     padding: 10,
-    color: "#023859",
-    fontSize: 13,
   },
 };

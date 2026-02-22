@@ -27,7 +27,7 @@ class LearnerProfile(models.Model):
     age_group = models.CharField(max_length=20, choices=AGE_GROUP_CHOICES)
     skill_level = models.CharField(max_length=20, choices=SKILL_LEVEL_CHOICES)
 
-    # multiple interests → store as comma text or use ManyToMany later
+   
     interests = models.JSONField(default=list, blank=True)
 
     uses_laptop = models.BooleanField(default=False)

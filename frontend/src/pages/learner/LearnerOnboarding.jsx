@@ -174,7 +174,7 @@ function LearnerOnboarding() {
 export default LearnerOnboarding;
 
 
-/* ===== SAME STYLE SYSTEM AS REGISTER ===== */
+
 
 const styles = {
   page: {
@@ -189,7 +189,7 @@ const styles = {
   background: "#8FD6DE",
   padding: "8px 32px",
   display: "flex",
-  justifyContent: "space-between",   // ⭐ pushes welcome to right
+  justifyContent: "space-between",   
   alignItems: "center",
   borderBottom: "1px solid #54ACBF",
 },
@@ -231,10 +231,10 @@ welcomeText: {
   subtitle: { fontSize: "13px", color: "#023859", marginBottom: "14px" },
 card: {
   background: "#FFFFFF",
-  width: "300px",          // reduced
+  width: "300px",          
   padding: "18px",
-  borderRadius: "18px",    // softer
-  boxShadow: "0 12px 24px rgba(0,0,0,0.12)", // deeper shadow
+  borderRadius: "18px",    
+  boxShadow: "0 12px 24px rgba(0,0,0,0.12)", 
 },
 
   label: { fontWeight: "bold", fontSize: "13px", marginTop: "10px", display: "block" },
