@@ -34,7 +34,7 @@ function LearnerRegister() {
       form
     );
 
-    toast.success("Registered successfully 🎉");
+    toast.success("Registered successfully");
 
     setTimeout(() => {
       navigate("/login");
@@ -108,7 +108,7 @@ function LearnerRegister() {
 
             <div
                 style={styles.forgotLink}
-                onClick={() => navigate("/forgot-password")}
+                onClick={() => navigate("/learner/forgot-password")}
             >
             Forgot password?
             </div>
@@ -137,6 +137,7 @@ function LearnerRegister() {
           "http://127.0.0.1:8000/api/accounts/google-login/",
           {
             token: credentialResponse.credential,
+            role: "learner"
           }
         );
 

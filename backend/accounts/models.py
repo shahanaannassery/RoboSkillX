@@ -15,11 +15,23 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, full_name="Admin", role="admin", password=None, **extra_fields):
+    def create_superuser(self, email, full_name="Admin", password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
-        return self.create_user(email, full_name, role, password, **extra_fields)
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True.")
+
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
+
+        return self.create_user(
+            email=email,
+            full_name=full_name,
+            role="admin",   # 🔥 FORCE ROLE
+            password=password,
+            **extra_fields
+    )
 
 
 class User(AbstractUser):
@@ -35,9 +47,11 @@ class User(AbstractUser):
     full_name = models.CharField(max_length=150)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     is_verified = models.BooleanField(default=False)
+    onboarding_completed = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False) 
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["full_name", "role"]
+    REQUIRED_FIELDS = ["full_name"]
 
     objects = UserManager() 
 

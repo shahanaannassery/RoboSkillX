@@ -6,7 +6,9 @@ import { toast } from "react-toastify";
 function ResetPassword() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { email, otp } = location.state || {};
+
+  // Get values from VerifyOTP
+  const { email, otp, role } = location.state || {};
 
   const [form, setForm] = useState({
     new_password: "",
@@ -34,7 +36,11 @@ function ResetPassword() {
       toast.success("Password reset successful ✅");
 
       setTimeout(() => {
-        navigate("/login");
+        if (role === "mentor") {
+          navigate("/mentor/login");
+        } else {
+          navigate("/login");
+        }
       }, 1500);
 
     } catch {
@@ -56,7 +62,11 @@ function ResetPassword() {
           <span style={styles.headerText}>Already have an account?</span>
           <button
             style={styles.signInBtn}
-            onClick={() => navigate("/login")}
+            onClick={() =>
+              role === "mentor"
+                ? navigate("/mentor/login")
+                : navigate("/login")
+            }
           >
             Sign In
           </button>

@@ -17,7 +17,6 @@ class LearnerOnboardingView(APIView):
     def post(self, request):
         user = request.user
 
-        # create or update profile
         profile, created = LearnerProfile.objects.get_or_create(user=user)
 
         serializer = LearnerOnboardingSerializer(
@@ -25,16 +24,17 @@ class LearnerOnboardingView(APIView):
         )
 
         if serializer.is_valid():
-            obj = serializer.save()
-            obj.onboarding_completed = True
-            obj.save()
+            serializer.save()
+
+            # 🔥 UPDATE USER MODEL (IMPORTANT)
+            user.onboarding_completed = True
+            user.save()
 
             return Response(
                 {
                     "status": "success",
                     "message": "Onboarding saved successfully",
-                    # "data": serializer.data,
-                    "onboarding_completed": obj.onboarding_completed
+                    "onboarding_completed": user.onboarding_completed
                 },
                 status=status.HTTP_200_OK,
             )

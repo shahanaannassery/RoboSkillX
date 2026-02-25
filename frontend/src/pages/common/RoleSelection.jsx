@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
 import miniProject from "../../assets/images/mini project.webp";
 
 
 
 function RoleSelection() {
   const navigate = useNavigate();
+  const roleSectionRef = useRef(null);
 
   return (
     <div style={styles.page}>
@@ -16,11 +18,17 @@ function RoleSelection() {
         </div>
 
         <div style={styles.navRight}>
-          <span style={styles.accountText}>Already have an account?</span>
-          <button style={styles.signIn} onClick={() => navigate("/login")}>
-            Sign In
-          </button>
-        </div>
+  <span style={styles.accountText}>Already have an account?</span>
+
+  <button
+    style={styles.signIn}
+    onClick={() => {
+      roleSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+    }}
+  >
+    Sign In
+  </button>
+</div>
       </div>
 
       {/* HERO */}
@@ -193,7 +201,7 @@ function RoleSelection() {
 </section>
 
       {/* ROLE SELECTION */}
-      <section style={styles.section}>
+      <section ref={roleSectionRef} style={styles.section}>
         <h2 style={styles.sectionTitle}>Choose Your Role</h2>
 
         <div style={styles.roleGrid}>
@@ -232,7 +240,7 @@ function RoleSelection() {
 export default RoleSelection;
 
 const styles = {
-  page: { background: "#A7EBF2", fontFamily: "sans-serif" },
+  page: { background: "#A7EBF2", fontFamily: "sans-serif",scrollBehavior: "smooth", },
 
   navbar: {
     background: "#8FD6DE",

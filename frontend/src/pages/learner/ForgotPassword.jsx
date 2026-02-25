@@ -1,11 +1,17 @@
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaLock } from "react-icons/fa";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function ForgotPassword() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Detect role from URL
+  const isMentor = location.pathname.includes("mentor");
+  const role = isMentor ? "mentor" : "learner";
+
   const [email, setEmail] = useState("");
 
   const handleSubmit = async (e) => {
@@ -20,7 +26,7 @@ function ForgotPassword() {
       toast.success("OTP sent to your email 📩");
 
       setTimeout(() => {
-        navigate("/verify-otp", { state: { email } });
+        navigate("/verify-otp", { state: { email, role } });
       }, 1500);
 
     } catch {
@@ -42,7 +48,11 @@ function ForgotPassword() {
           <span style={styles.headerText}>Already have an account?</span>
           <button
             style={styles.signInBtn}
-            onClick={() => navigate("/login")}
+            onClick={() =>
+              role === "mentor"
+                ? navigate("/mentor/login")
+                : navigate("/login")
+            }
           >
             Sign In
           </button>
@@ -61,7 +71,7 @@ function ForgotPassword() {
           <h2 style={styles.title}>Forgot your password?</h2>
 
           <p style={styles.subtitle}>
-           Enter your email address and we'll send you a 6-digit OTP to reset your password.
+            Enter your email address and we'll send you a 6-digit OTP to reset your password.
           </p>
 
           <form onSubmit={handleSubmit}>
@@ -77,12 +87,18 @@ function ForgotPassword() {
             <button style={styles.btn}>Verify Email</button>
           </form>
 
+          {/* BACK TO SIGN IN */}
           <p
             style={styles.backLink}
-            onClick={() => navigate("/login")}
+            onClick={() =>
+              role === "mentor"
+                ? navigate("/mentor/login")
+                : navigate("/login")
+            }
           >
             Back to Sign In
           </p>
+
         </div>
       </div>
 
@@ -97,6 +113,8 @@ function ForgotPassword() {
 }
 
 export default ForgotPassword;
+
+/* keep your styles unchanged */
 
 const styles = {
   page: {

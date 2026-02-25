@@ -19,33 +19,41 @@ class MentorProfile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    # Basic info
-    full_name = models.CharField(max_length=150)
-    email = models.EmailField()
     phone = models.CharField(max_length=20)
 
-    # Expertise
     primary_expertise = models.CharField(max_length=100)
     skills = models.JSONField(default=list, blank=True)
 
-    # Experience
-    years_of_experience = models.CharField(max_length=10, choices=EXPERIENCE_CHOICES)
+    years_of_experience = models.CharField(
+        max_length=10,
+        choices=EXPERIENCE_CHOICES
+    )
+
     bio = models.TextField(blank=True)
 
-    # Documents
     resume = models.FileField(upload_to="mentor/resumes/")
-    certificates = models.FileField(upload_to="mentor/certificates/", blank=True, null=True)
+
     portfolio_url = models.URLField(blank=True)
 
-    # Approval system
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
-    rejection_reason = models.TextField(blank=True)
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default="pending"
+    )
 
-    # Flags
-    profile_completed = models.BooleanField(default=False)
+    rejection_reason = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.user.email} - {self.status}"
+
+
+class MentorCertificate(models.Model):
+    mentor = models.ForeignKey(
+        MentorProfile,
+        on_delete=models.CASCADE,
+        related_name="certificates"
+    )
+    file = models.FileField(upload_to="mentor/certificates/")

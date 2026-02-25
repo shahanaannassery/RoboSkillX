@@ -6,7 +6,8 @@ import { toast } from "react-toastify";
 function VerifyOTP() {
   const navigate = useNavigate();
   const location = useLocation();
-  const email = location.state?.email;
+
+  const { email, role } = location.state || {};
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputsRef = useRef([]);
@@ -41,7 +42,15 @@ function VerifyOTP() {
       toast.success("OTP Verified ✅");
 
       setTimeout(() => {
-        navigate("/reset-password", { state: { email, otp: finalOtp } });
+        if (role === "mentor") {
+          navigate("/mentor/reset-password", {
+            state: { email, otp: finalOtp, role }
+          });
+        } else {
+          navigate("/learner/reset-password", {
+            state: { email, otp: finalOtp, role }
+          });
+        }
       }, 1500);
 
     } catch {
@@ -63,7 +72,11 @@ function VerifyOTP() {
           <span style={styles.headerText}>Already have an account?</span>
           <button
             style={styles.signInBtn}
-            onClick={() => navigate("/login")}
+            onClick={() =>
+              role === "mentor"
+                ? navigate("/mentor/login")
+                : navigate("/login")
+            }
           >
             Sign In
           </button>
@@ -109,7 +122,11 @@ function VerifyOTP() {
 
           <p
             style={styles.backLink}
-            onClick={() => navigate("/learner/register")}
+            onClick={() =>
+              role === "mentor"
+                ? navigate("/mentor/register")
+                : navigate("/learner/register")
+            }
           >
             Back to Sign Up
           </p>

@@ -85,13 +85,12 @@ function LearnerLogin() {
               style={styles.input}
               required
             />
-
-            <div
-              style={styles.forgotLink}
-              onClick={() => navigate("/forgot-password")}
-            >
-              Forgot password?
-            </div>
+<div
+  style={styles.forgotLink}
+ onClick={() => navigate("/learner/forgot-password")}
+>
+  Forgot password?
+</div>
 
             <button type="submit" style={styles.primaryBtn}>
               Sign In
@@ -105,6 +104,7 @@ function LearnerLogin() {
           "http://127.0.0.1:8000/api/accounts/google-login/",
           {
             token: credentialResponse.credential,
+            role: "learner",
           }
         );
 
@@ -115,8 +115,17 @@ function LearnerLogin() {
         localStorage.setItem("user_name", data.user.full_name);
         localStorage.setItem("user_email", data.user.email);
 
-        toast.success("Authenticated");
-        navigate("/dashboard");
+
+         toast.success("Authenticated");
+
+
+        // const role = data.user.role;
+
+if (!data.user.onboarding_completed) {
+  navigate("/experience-setup");
+} else {
+  navigate("/dashboard");
+}
 
       } catch (err) {
         console.log(err.response?.data);
