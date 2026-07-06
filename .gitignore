@@ -10,3 +10,13 @@ dist/
 
 # Misc
 .DS_Store
+
+#VS Code
+.vscode/
+
+# Frontend
+frontend/node_modules/
+
+#Updated files
+backend/media/
+backend/mentor/resumes/
