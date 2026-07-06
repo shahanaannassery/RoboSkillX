@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../../services/axios";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
@@ -29,10 +29,8 @@ function LearnerRegister() {
   }
 
   try {
-    await axios.post(
-      "http://127.0.0.1:8000/api/accounts/learner/register/",
-      form
-    );
+
+    await api.post("/accounts/learner/register/", form);
 
     toast.success("Registered successfully");
 
@@ -41,10 +39,10 @@ function LearnerRegister() {
     }, 1500);
 
   } catch (err) {
-    toast.error("Registration failed ❌");
+    console.log(err.response?.data);
+    toast.error("Registration failed");
   }
 };
-
   return (
     <div style={styles.page}>
       {/* HEADER */}
@@ -131,32 +129,35 @@ function LearnerRegister() {
 
             <div style={{ marginTop: 12 }}>
   <GoogleLogin
-    onSuccess={async (credentialResponse) => {
-      try {
-        const res = await axios.post(
-          "http://127.0.0.1:8000/api/accounts/google-login/",
-          {
-            token: credentialResponse.credential,
-            role: "learner"
-          }
-        );
+  onSuccess={async (credentialResponse) => {
+    try {
 
-        const data = res.data.data;
+      const res = await api.post("/accounts/google-login/", {
+        token: credentialResponse.credential,
+        role: "learner"
+      });
 
-        localStorage.setItem("access_token", data.access);
-        localStorage.setItem("refresh_token", data.refresh);
-        localStorage.setItem("user_name", data.user.full_name);
+      const data = res.data;
 
-        toast.success("Authenticated");
+      // store only safe data
+      localStorage.setItem("user_name", data.user.full_name);
+      localStorage.setItem("user_role", data.user.role);
+
+      toast.success("Authenticated");
+
+      if (!data.onboarding_completed) {
+        navigate("/experience-setup");
+      } else {
         navigate("/dashboard");
-
-      } catch (err) {
-        console.log(err.response?.data);
-        toast.error("Google login failed");
       }
-    }}
-    onError={() => toast.error("Google Login Failed")}
-  />
+
+    } catch (err) {
+      console.log(err.response?.data);
+      toast.error("Google login failed");
+    }
+  }}
+  onError={() => toast.error("Google Login Failed")}
+/>
 </div>
 
 

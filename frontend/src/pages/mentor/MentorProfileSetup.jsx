@@ -101,7 +101,7 @@ const experienceOptions = [
 
     await api.post("mentors/profile-setup/", formData);
 
-    toast.success("Profile submitted for approval 🚀");
+    toast.success("Profile submitted for approval ");
     navigate("/mentor/review-status");
 
   } catch (error) {

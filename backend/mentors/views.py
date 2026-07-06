@@ -7,9 +7,15 @@ from .models import MentorProfile, MentorCertificate
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 
-# =========================
+from courses.models import Session
+from courses.serializers import SessionSerializer
+from rest_framework.views import APIView
+
+from accounts.authentication import CookieJWTAuthentication
+
+
 # APPROVE MENTOR
-# =========================
+
 @api_view(["PATCH"])
 def approve_mentor(request, pk):
     try:
@@ -18,7 +24,7 @@ def approve_mentor(request, pk):
         mentor.status = "approved"
         mentor.save()
 
-        # 🔥 Update user approval status
+        # user approval status
         mentor.user.is_approved = True
         mentor.user.save()
 
@@ -34,9 +40,9 @@ def approve_mentor(request, pk):
         )
 
 
-# =========================
+
 # REJECT MENTOR
-# =========================
+
 @api_view(["PATCH"])
 def reject_mentor(request, pk):
     try:
@@ -77,7 +83,7 @@ def mentor_profile_setup(request):
 
     mentor.save()
 
-    # IMPORTANT
+
     user.onboarding_completed = True
     user.save()
 
@@ -101,6 +107,58 @@ def mentor_status(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def pending_mentors(request):
+
+    if request.user.role != "admin":
+        return Response({"error": "Admin access only"}, status=403)
+
     mentors = MentorProfile.objects.all().order_by("-created_at")
+
     serializer = MentorProfileSerializer(mentors, many=True)
+
     return Response(serializer.data)
+
+
+# create course mentor drop down list
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(["GET"])
+def approved_mentors(request):
+
+    mentors = MentorProfile.objects.filter(
+        status="approved"
+    )
+
+    data = []
+
+    for mentor in mentors:
+        data.append({
+            "id": mentor.id,
+            "name": mentor.user.full_name,
+        })
+
+    return Response(data)
+
+class MentorMySessionsView(APIView):
+
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # print("USER =", request.user)
+
+        mentor = MentorProfile.objects.get(
+            user=request.user
+        )
+
+        sessions = Session.objects.filter(
+            course__mentors=mentor
+        )
+
+        serializer = SessionSerializer(
+            sessions,
+            many=True
+        )
+
+        return Response(serializer.data)

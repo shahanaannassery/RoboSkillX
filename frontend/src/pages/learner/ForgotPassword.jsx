@@ -23,14 +23,14 @@ function ForgotPassword() {
         { email }
       );
 
-      toast.success("OTP sent to your email 📩");
+      toast.success("OTP sent to your email");
 
       setTimeout(() => {
         navigate("/verify-otp", { state: { email, role } });
       }, 1500);
 
     } catch {
-      toast.error("Email not registered ❌");
+      toast.error("Email not registered");
     }
   };
 

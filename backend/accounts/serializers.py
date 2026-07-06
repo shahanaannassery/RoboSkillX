@@ -64,7 +64,7 @@ class LearnerLoginSerializer(serializers.Serializer):
             },
             "access": str(refresh.access_token),
             "refresh": str(refresh),
-            "onboarding_completed": user.onboarding_completed,  # ✅ FIXED
+            "onboarding_completed": user.onboarding_completed, 
         }
 
 
@@ -173,7 +173,7 @@ class GoogleLoginSerializer(serializers.Serializer):
             },
         )
 
-        # 🚨 Prevent switching roles
+        #Prevent switching roles
         if not created and user.role != role:
             raise serializers.ValidationError(
                 f"This email is already registered as {user.role}"
@@ -376,3 +376,4 @@ class AdminResetPasswordSerializer(serializers.Serializer):
         user.save()
 
         return {"message": "Password reset successful"}
+    

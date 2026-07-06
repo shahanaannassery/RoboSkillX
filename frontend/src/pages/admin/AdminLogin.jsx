@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../../services/axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -15,38 +15,40 @@ function AdminLogin() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await axios.post(
-        "http://127.0.0.1:8000/api/accounts/admin/login/",
-        form
-      );
+  try {
+    const res = await api.post("/accounts/admin/login/", form);
+    
 
-      const data = res.data.data;
+    const data = res.data;
+    console.log("LOGIN RESPONSE:", data);
+    
 
-      localStorage.setItem("access_token", data.access);
-      localStorage.setItem("refresh_token", data.refresh);
-      localStorage.setItem("user_name", data.user.full_name);
-      localStorage.setItem("user_role", data.user.role);
+    localStorage.setItem("user_name", data.user.full_name);
+    localStorage.setItem("user_role", data.user.role);
 
-      toast.success("Admin authenticated");
+    toast.success("Admin authenticated");
 
-      setTimeout(() => {
-        navigate("/admin/dashboard");
-      }, 1000);
+    navigate("/admin/dashboard");
 
-    } catch (err) {
+  } catch (err) {
+
+    if (err.response?.status === 400) {
       toast.error("Invalid admin credentials");
+    } else {
+      toast.error("Something went wrong");
     }
-  };
+
+  }
+};
 
   return (
     <div style={styles.page}>
       <div style={styles.card}>
 
-        {/* Center Logo */}
+        {/*  Logo */}
         <div style={styles.logoWrapper}>
           <div style={styles.logoIcon}>🤖</div>
           <div style={styles.logoText}>RoboSkillX</div>
@@ -98,7 +100,7 @@ function AdminLogin() {
 
 export default AdminLogin;
 
-/* =================== STRICT ADMIN THEME =================== */
+
 
 const styles = {
   page: {

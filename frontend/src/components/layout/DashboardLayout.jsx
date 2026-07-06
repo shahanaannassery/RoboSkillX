@@ -1,4 +1,5 @@
 import { useState } from "react";
+import api from "../../services/axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -29,7 +30,7 @@ function DashboardLayout({ children }) {
 
   const menu = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-    { name: "Courses", icon: BookOpen, path: "/courses" },
+    { name: "Courses", icon: BookOpen, path: "/learner/courses" },
     { name: "Virtual Robotics Lab", icon: Cpu, path: "/simulation" },
     { name: "Projects", icon: Folder, path: "/projects" },
     { name: "Mentors", icon: Users, path: "/mentors" },
@@ -67,18 +68,24 @@ function DashboardLayout({ children }) {
         <div style={{ flex: 1 }}>
           {menu.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-
+           const isActive = location.pathname.startsWith(item.path);
             return (
               <div
                 key={item.name}
                 onClick={() => navigate(item.path)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateX(6px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateX(0px)";
-                }}
+               onMouseEnter={(e) => {
+  if (!isActive) {
+    e.currentTarget.style.background = "#EAF8FA";
+    e.currentTarget.style.transform = "translateX(4px)";
+  }
+}}
+
+onMouseLeave={(e) => {
+  if (!isActive) {
+    e.currentTarget.style.background = "transparent";
+    e.currentTarget.style.transform = "translateX(0px)";
+  }
+}}
                 style={{
                   ...styles.menuItem,
                   ...(isActive && styles.activeMenuItem),
@@ -95,15 +102,23 @@ function DashboardLayout({ children }) {
         <div style={styles.logoutBox}>
           <div style={styles.divider} />
           <div
-            style={styles.logout}
-            onClick={() => {
-              localStorage.clear();
-              navigate("/");
-            }}
-          >
-            <LogOut size={18} />
-            {!collapsed && <span>Logout</span>}
-          </div>
+  style={styles.logout}
+  onClick={async () => {
+    try {
+      await api.post("/accounts/logout/");
+
+      localStorage.clear();
+
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  }}
+>
+  <LogOut size={18} />
+  {!collapsed && <span>Logout</span>}
+</div>
+            
         </div>
       </div>
 
@@ -143,20 +158,35 @@ function DashboardLayout({ children }) {
 export default DashboardLayout;
 
 const styles = {
+  // page: {
+  //   display: "flex",
+  //   height: "100vh",
+  //   background: "#A7EBF2",
+  //   fontFamily: "sans-serif",
+  // },
   page: {
-    display: "flex",
-    height: "100vh",
-    background: "#A7EBF2",
-    fontFamily: "sans-serif",
-  },
+  display: "flex",
+  minHeight: "100vh",
+  background: "#A7EBF2",
+  fontFamily: "sans-serif",
+  overflow: "hidden",
+},
 
+  // sidebar: {
+  //   background: "#FFFFFF",
+  //   display: "flex",
+  //   flexDirection: "column",
+  //   transition: "0.3s",
+  //   boxShadow: "2px 0 12px rgba(0,0,0,0.06)",
+  // },
   sidebar: {
-    background: "#FFFFFF",
-    display: "flex",
-    flexDirection: "column",
-    transition: "0.3s",
-    boxShadow: "2px 0 12px rgba(0,0,0,0.06)",
-  },
+  background: "#FFFFFF",
+  display: "flex",
+  flexDirection: "column",
+  transition: "0.3s",
+  boxShadow: "2px 0 12px rgba(0,0,0,0.06)",
+  flexShrink: 0,
+},
 
   logoRow: {
     display: "flex",
@@ -187,22 +217,26 @@ const styles = {
   },
 
   /* MENU */
-  menuItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    padding: "12px 16px",
-    margin: "6px 14px",   // 👈 Slim highlight width
-    borderRadius: 10,
-    cursor: "pointer",
-    fontSize: 14,
-    transition: "all 0.2s ease",
-  },
+ menuItem: {
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+  padding: "14px 16px",
+  margin: "4px 12px",
+  borderRadius: "12px",
+  cursor: "pointer",
+  fontSize: "15px",
+  fontWeight: "500",
+  color: "#011C40",
+  transition: "all 0.25s ease",
+},
 
   activeMenuItem: {
-    background: "#8FD6DE",
-    fontWeight: "bold",
-  },
+  background: "#26658C",
+  color: "#FFFFFF",
+  fontWeight: "600",
+  boxShadow: "0 4px 12px rgba(38,101,140,0.25)",
+},
 
   logoutBox: { padding: 16 },
   divider: { height: 1, background: "#eee", marginBottom: 10 },

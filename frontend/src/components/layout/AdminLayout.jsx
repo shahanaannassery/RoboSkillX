@@ -1,4 +1,10 @@
-import { Outlet, NavLink } from "react-router-dom";
+import api from "../../services/axios";
+import { useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  NavLink,
+  useLocation
+} from "react-router-dom";
 import {
   FiHome,
   FiUsers,
@@ -17,6 +23,24 @@ import {
 function AdminLayout() {
   const adminName = localStorage.getItem("admin_name") || "Admin";
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // console.log("CURRENT PATH =", location.pathname);
+
+const handleLogout = async () => {
+  try {
+    await api.post("/accounts/logout/");
+
+    localStorage.clear();
+
+    navigate("/admin/login");
+
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+};
+
   const menuItems = [
     { name: "Dashboard", path: "/admin/dashboard", icon: <FiHome /> },
     { name: "Users", path: "/admin/users", icon: <FiUsers /> },
@@ -29,6 +53,8 @@ function AdminLayout() {
     { name: "Subscriptions", path: "/admin/subscriptions", icon: <FiLayers /> },
     { name: "Settings", path: "/admin/settings", icon: <FiSettings /> },
   ];
+
+  
 
   return (
     <div style={styles.layout}>
@@ -45,35 +71,62 @@ function AdminLayout() {
         {/* MENU */}
         <div style={styles.menuContainer}>
           {menuItems.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.path}
-              style={({ isActive }) => ({
-                ...styles.menuItem,
-                background: isActive ? "#666B64" : "transparent",
-                color: isActive ? "#FFFFFF" : "#171F22",
-              })}
-              onMouseEnter={(e) => {
-                if (!e.currentTarget.style.background.includes("#666B64")) {
-                  e.currentTarget.style.transform = "translateX(6px)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateX(0px)";
-              }}
-            >
-              <span style={styles.icon}>{item.icon}</span>
-              {item.name}
-            </NavLink>
+          <NavLink
+  key={item.name}
+  to={item.path}
+  style={({ isActive }) => {
+
+    const isCreateSessionPage =
+      location.pathname.includes("/create-session");
+
+    const courseActive =
+      item.name === "Courses" &&
+      !isCreateSessionPage &&
+      (
+        location.pathname.startsWith("/admin/courses") ||
+        location.pathname.startsWith("/admin/edit-course") ||
+        location.pathname.startsWith("/admin/course/")
+      );
+
+  const sessionActive =
+  item.name === "Sessions" &&
+  (
+    location.pathname.startsWith("/admin/sessions") ||
+    location.pathname.startsWith("/admin/session/") ||
+    location.pathname.startsWith("/admin/edit-session/") ||
+    location.pathname.includes("/create-session")
+  );
+
+    return {
+      ...styles.menuItem,
+
+      background:
+        isActive || courseActive || sessionActive
+          ? "#666B64"
+          : "transparent",
+
+      color:
+        isActive || courseActive || sessionActive
+          ? "#FFFFFF"
+          : "#171F22",
+    };
+  }}
+>
+  <span style={styles.icon}>
+    {item.icon}
+  </span>
+
+  {item.name}
+</NavLink>
           ))}
         </div>
 
         {/* LOGOUT */}
-        <div style={styles.logoutSection}>
-  <NavLink to="/admin/login" style={styles.logoutBtn}>
+      <div style={styles.logoutSection}>
+  <div style={styles.logoutBtn} onClick={handleLogout}>
     <FiLogOut style={{ marginRight: 10, color: "#D64545" }} />
     Logout
-  </NavLink>
+  </div>
 </div>
 
       </div>
@@ -119,7 +172,7 @@ const styles = {
     flexDirection: "column",
   },
 
-  /* LOGO SAME LINE */
+  
   logoWrapper: {
     display: "flex",
     alignItems: "center",
@@ -180,7 +233,7 @@ logoutBtn: {
   borderRadius: "8px",
   textDecoration: "none",
   fontSize: "14px",
-  color: "#171F22",   // normal text color
+  color: "#171F22",   
 },
 
   rightSection: {
@@ -191,13 +244,13 @@ logoutBtn: {
 
 header: {
   height: "70px",
-  background: "#B8C9C7",   // slightly darker than page background
+  background: "#B8C9C7",  
   display: "flex",
   justifyContent: "flex-end",
   alignItems: "center",
   padding: "0 30px",
   gap: "20px",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",  // soft separation
+  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",  
   borderBottom: "1px solid rgba(0,0,0,0.05)",
 },
 

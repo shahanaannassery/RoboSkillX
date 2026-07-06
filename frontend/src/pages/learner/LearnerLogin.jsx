@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../../services/axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { GoogleLogin } from "@react-oauth/google";
@@ -20,23 +20,16 @@ function LearnerLogin() {
   e.preventDefault();
 
   try {
-    const res = await axios.post(
-      "http://127.0.0.1:8000/api/accounts/learner/login/",
-      form
-    );
+    const res = await api.post("/accounts/learner/login/", form);
 
-    const data = res.data.data; 
+    const data = res.data;
     
 
-   
-    localStorage.setItem("access_token", data.access);
-    localStorage.setItem("refresh_token", data.refresh);
     localStorage.setItem("user_name", data.user.full_name);
     localStorage.setItem("user_email", data.user.email);
 
     toast.success("Authenticated");
 
-  
     if (data.onboarding_completed === true) {
       navigate("/dashboard");
     } else {
@@ -44,11 +37,9 @@ function LearnerLogin() {
     }
 
   } catch (err) {
-    
     toast.error("Invalid email or password");
   }
 };
-
 
   return (
     <div style={styles.page}>
@@ -98,42 +89,35 @@ function LearnerLogin() {
 
            <div style={{ marginTop: 12 }}>
   <GoogleLogin
-    onSuccess={async (credentialResponse) => {
-      try {
-        const res = await axios.post(
-          "http://127.0.0.1:8000/api/accounts/google-login/",
-          {
-            token: credentialResponse.credential,
-            role: "learner",
-          }
-        );
+  onSuccess={async (credentialResponse) => {
+    try {
 
-        const data = res.data.data;
+      const res = await api.post("/accounts/google-login/", {
+        token: credentialResponse.credential,
+        role: "learner"
+      });
 
-        localStorage.setItem("access_token", data.access);
-        localStorage.setItem("refresh_token", data.refresh);
-        localStorage.setItem("user_name", data.user.full_name);
-        localStorage.setItem("user_email", data.user.email);
+      const data = res.data;
 
+      // store only safe data
+      localStorage.setItem("user_name", data.user.full_name);
+      localStorage.setItem("user_role", data.user.role);
 
-         toast.success("Authenticated");
+      toast.success("Authenticated");
 
-
-        // const role = data.user.role;
-
-if (!data.user.onboarding_completed) {
-  navigate("/experience-setup");
-} else {
-  navigate("/dashboard");
-}
-
-      } catch (err) {
-        console.log(err.response?.data);
-        toast.error("Google login failed");
+      if (!data.onboarding_completed) {
+        navigate("/experience-setup");
+      } else {
+        navigate("/dashboard");
       }
-    }}
-    onError={() => toast.error("Google Login Failed")}
-  />
+
+    } catch (err) {
+      console.log(err.response?.data);
+      toast.error("Google login failed");
+    }
+  }}
+  onError={() => toast.error("Google Login Failed")}
+/>
 </div>
 
            <div style={styles.bottomText}>

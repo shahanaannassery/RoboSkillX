@@ -23,7 +23,7 @@ function ResetPassword() {
     e.preventDefault();
 
     if (form.new_password !== form.confirm_password) {
-      toast.error("Passwords do not match ❌");
+      toast.error("Passwords do not match ");
       return;
     }
 
@@ -33,7 +33,7 @@ function ResetPassword() {
         { ...form, email, otp }
       );
 
-      toast.success("Password reset successful ✅");
+      toast.success("Password reset successful ");
 
       setTimeout(() => {
         if (role === "mentor") {
@@ -44,7 +44,7 @@ function ResetPassword() {
       }, 1500);
 
     } catch {
-      toast.error("Password reset failed ❌");
+      toast.error("Password reset failed ");
     }
   };
 

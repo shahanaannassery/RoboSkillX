@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../../services/axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -15,39 +15,40 @@ function MentorLogin() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await axios.post(
-        "http://127.0.0.1:8000/api/accounts/mentor/login/",
-        form
-      );
+  try {
+    const res = await api.post("/accounts/mentor/login/", form);
 
-      const data = res.data.data;
+    const data = res.data;
 
-      localStorage.setItem("access_token", data.access);
-      localStorage.setItem("refresh_token", data.refresh);
-      localStorage.setItem("user_name", data.user.full_name);
-      localStorage.setItem("user_email", data.user.email);
-      localStorage.setItem("user_role", data.user.role);
+    // Only store user info
+    localStorage.setItem("user_name", data.user.full_name);
+    localStorage.setItem("user_email", data.user.email);
+    localStorage.setItem("user_role", data.user.role);
 
-      toast.success("Mentor authenticated");
+    toast.success("Mentor authenticated");
 
-      // 🔥 Redirect based on onboarding
-      if (!data.onboarding_completed) {
+    if (!data.onboarding_completed) {
       navigate("/mentor/profile-setup");
-    } else if (!data.is_approved) {
+    } 
+    else if (!data.is_approved) {
       navigate("/mentor/review-status");
-    } else {
+    } 
+    else {
       navigate("/mentor/dashboard");
     }
 
-    } catch (err) {
-      toast.error("Invalid email or password");
-    }
-  };
+  } catch (err) {
+    console.log("FULL ERROR:", err);
+  console.log("RESPONSE:", err.response);
+  console.log("DATA:", err.response?.data);
 
+    
+    toast.error("Invalid email or password");
+  }
+};
   return (
     <div style={styles.page}>
       {/* HEADER */}

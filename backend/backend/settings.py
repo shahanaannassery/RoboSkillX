@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
+
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -49,7 +49,10 @@ INSTALLED_APPS = [
     'mentors',
     'adminpanel',
     "rest_framework",
+    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
+    'courses',
+    'mentor_sessions',
 ]
 
 MIDDLEWARE = [
@@ -156,16 +159,24 @@ AUTH_USER_MODEL = "accounts.User"
 #         "rest_framework_simplejwt.authentication.JWTAuthentication",
 #     ),
 # }
+# REST_FRAMEWORK = {
+#     "DEFAULT_AUTHENTICATION_CLASSES": (
+#         "rest_framework_simplejwt.authentication.JWTAuthentication",
+#     ),
+#     "DEFAULT_PERMISSION_CLASSES": (
+#         "rest_framework.permissions.AllowAny",
+#     ),
+# }
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "accounts.authentication.CookieJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.AllowAny",
     ),
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
@@ -179,10 +190,25 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER =  os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD =os.getenv("EMAIL_HOST_PASSWORD")
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+
+# backend/settings.py
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
 }
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

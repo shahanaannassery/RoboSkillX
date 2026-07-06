@@ -28,7 +28,7 @@ class UserManager(BaseUserManager):
         return self.create_user(
             email=email,
             full_name=full_name,
-            role="admin",   # 🔥 FORCE ROLE
+            role="admin",  
             password=password,
             **extra_fields
     )
@@ -63,3 +63,4 @@ class OTP(models.Model):
     
     def is_expired(self):
         return timezone.now() > self.created_at + timedelta(minutes=10)
+

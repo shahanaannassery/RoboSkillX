@@ -7,6 +7,7 @@ from .views import AdminLoginView
 from .views import AdminForgotPasswordView
 from .views import AdminVerifyOTPView
 from .views import AdminResetPasswordView
+from .views import LogoutView
 
 from django.urls import path
 from .views import (
@@ -28,4 +29,5 @@ urlpatterns = [
     path("admin/forgot-password/", AdminForgotPasswordView.as_view()),
     path("admin/verify-otp/", AdminVerifyOTPView.as_view()),
     path("admin/reset-password/", AdminResetPasswordView.as_view()),
+    path("logout/", LogoutView.as_view(), name="logout"),
 ]

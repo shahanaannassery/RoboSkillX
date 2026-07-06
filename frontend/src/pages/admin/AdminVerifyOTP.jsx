@@ -16,7 +16,7 @@ function AdminVerifyOTP() {
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // auto move to next input
+    
     if (value && index < 5) {
       document.getElementById(`otp-${index + 1}`).focus();
     }

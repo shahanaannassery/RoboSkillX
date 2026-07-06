@@ -30,12 +30,12 @@ class MentorProfileSerializer(serializers.ModelSerializer):
             "name",
             "email",
             "primary_expertise",
-            "skills",                # ✅ added
+            "skills",                
             "experience",
-            "bio",                   # ✅ added
-            "resume",                # ✅ added
-            "portfolio_url",         # ✅ added
-            "certificates",          # ✅ added
+            "bio",                   
+            "resume",                
+            "portfolio_url",         
+            "certificates",          
             "applied_date",
             "status",
         ]

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../../services/axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -19,42 +19,40 @@ function MentorRegister() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (form.password !== form.confirm_password) {
-      toast.error("Passwords do not match");
-      return;
-    }
+  if (form.password !== form.confirm_password) {
+    toast.error("Passwords do not match");
+    return;
+  }
 
-    try {
-      const res = await axios.post(
-        "http://127.0.0.1:8000/api/accounts/mentor/register/",
-        form
-      );
+  try {
 
-      const data = res.data.data;
+    const res = await api.post("/accounts/mentor/register/", form);
 
-      // Store tokens
-      localStorage.setItem("access_token", data.access);
-      localStorage.setItem("refresh_token", data.refresh);
-      localStorage.setItem("user_role", data.user.role);
-      localStorage.setItem("user_name", data.user.full_name);
+    toast.success("Mentor registered successfully");
 
-      toast.success("Mentor registered successfully 🎉");
+    setTimeout(() => {
+      navigate("/mentor/login");
+    }, 1500);
 
-      setTimeout(() => {
-        navigate("/mentor/login");
-      }, 1500);
+  } catch (err) {
+    console.log("FULL ERROR:", err);
+  console.log("BACKEND RESPONSE:", err.response);
+  console.log("BACKEND DATA:", err.response?.data);
 
-    } catch (err) {
-      toast.error(
-        err.response?.data?.errors?.non_field_errors?.[0] ||
-        "Registration failed ❌"
-      );
-    }
-  };
 
+    console.log("ERROR:", err.response?.data);
+
+    toast.error(
+      err.response?.data?.errors?.email ||
+      err.response?.data?.errors?.password ||
+      err.response?.data?.errors?.non_field_errors?.[0] ||
+      "Registration failed"
+    );
+  }
+};
   return (
     <div style={styles.page}>
       {/* HEADER */}
@@ -144,50 +142,40 @@ function MentorRegister() {
 
             <div style={{ marginTop: 12 }}>
   <GoogleLogin
-    onSuccess={async (credentialResponse) => {
-      try {
-        const res = await axios.post(
-          "http://127.0.0.1:8000/api/accounts/google-login/",
-          {
-            token: credentialResponse.credential,
-            role: "mentor", 
-          }
-        );
+  onSuccess={async (credentialResponse) => {
+    try {
 
-        const data = res.data.data;
+      const res = await api.post("/accounts/google-login/", {
+        token: credentialResponse.credential,
+        role: "mentor"
+      });
 
-        localStorage.setItem("access_token", data.access);
-        localStorage.setItem("refresh_token", data.refresh);
-        localStorage.setItem("user_name", data.user.full_name);
+      const data = res.data;
 
-       toast.success("Authenticated");
+      // store safe user info
+      localStorage.setItem("user_name", data.user.full_name);
+      localStorage.setItem("user_role", data.user.role);
 
-const role = data.user.role;
+      toast.success("Authenticated");
 
-if (role === "learner") {
-  if (!data.user.onboarding_completed) {
-    navigate("/learner/profile-setup");
-  } else {
-    navigate("/learner/dashboard");
-  }
-}
-
-if (role === "mentor") {
-  if (!data.user.onboarding_completed) {
-    navigate("/mentor/profile-setup");
-  } else if (!data.user.is_approved) {
-    navigate("/mentor/review-status");
-  } else {
-    navigate("/mentor/dashboard");
-  }
-}
-      } catch (err) {
-        console.log(err.response?.data);
-        toast.error("Google login failed");
+      if (!data.onboarding_completed) {
+        navigate("/mentor/profile-setup");
+      } 
+      else if (!data.is_approved) {
+        navigate("/mentor/review-status");
+      } 
+      else {
+        navigate("/mentor/dashboard");
       }
-    }}
-    onError={() => toast.error("Google Login Failed")}
-  />
+
+    } catch (err) {
+      console.log(err.response?.data);
+      toast.error("Google login failed");
+    }
+  }}
+
+  onError={() => toast.error("Google Login Failed")}
+/>
 </div>
           </form>
         </div>

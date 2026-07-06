@@ -39,7 +39,7 @@ function VerifyOTP() {
         { email, otp: finalOtp }
       );
 
-      toast.success("OTP Verified ✅");
+      toast.success("OTP Verified ");
 
       setTimeout(() => {
         if (role === "mentor") {
@@ -54,7 +54,7 @@ function VerifyOTP() {
       }, 1500);
 
     } catch {
-      toast.error("Invalid OTP ❌");
+      toast.error("Invalid OTP ");
     }
   };
 

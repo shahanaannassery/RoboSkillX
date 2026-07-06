@@ -1,6 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../../services/axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function LearnerOnboarding() {
   const navigate = useNavigate();
@@ -30,23 +31,23 @@ function LearnerOnboarding() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const token = localStorage.getItem("access_token");
+  try {
+    await api.post("/learners/onboarding/", form);
 
-      await axios.post(
-        "http://127.0.0.1:8000/api/learners/onboarding/",
-        form,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+    toast.success("Profile setup completed!");
 
+    setTimeout(() => {
       navigate("/dashboard");
-    } catch {
-      alert("Failed to save onboarding");
-    }
-  };
+    }, 1000);
+
+  } catch (err) {
+    console.log(err.response);
+    toast.error("Failed to save onboarding");
+  }
+};
 
   return (
     <div style={styles.page}>
